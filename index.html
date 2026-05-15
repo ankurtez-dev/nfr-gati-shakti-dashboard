@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Progress and Performance of Gati Shakti Unit of NFR</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --navy:#06245a;--navy2:#001b47;--blue:#0b63d8;--green:#099a45;--orange:#ff8a00;--red:#ef3333;
+  --purple:#7237d8;--bg:#eef4fb;--card:#ffffff;--line:#d8e2ee;--text:#08152f;--muted:#64748b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{
+  background:linear-gradient(180deg,#002e70 0%,#001b47 72%,#001235 100%);
+  color:white;padding:14px 14px;position:sticky;top:0;height:100vh;z-index:20;
+  box-shadow:8px 0 24px rgba(0,22,64,.28);overflow-y:auto
+}
+.side-logo{display:flex;align-items:center;gap:10px;margin:6px 0 18px}
+.logo-round{width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.22);overflow:hidden}
+.logo-round img{width:100%;height:100%;object-fit:contain}
+.side-logo b{display:block;font-size:15px;line-height:1.2}.side-logo span{font-size:11px;color:#bfdbfe}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:10px;margin:6px 0;font-weight:800;color:#eaf2ff;
+  cursor:pointer;user-select:none;transition:.15s
+}
+.nav-item:hover{background:rgba(255,255,255,.12);transform:translateX(2px)}
+.nav-item.active{background:linear-gradient(135deg,#1477ff,#0d4ec2);box-shadow:0 10px 20px rgba(20,119,255,.28)}
+.nav-icon{width:24px;text-align:center;font-size:20px}
+.data-source{
+  margin-top:18px;border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px;background:rgba(255,255,255,.06)
+}
+.data-source h4{margin:0 0 12px;color:#ffdf4d;font-size:13px}.data-source p{margin:8px 0;font-size:13px;color:#e2e8f0}.data-source b{color:#fff}.sheet-note{font-size:11px!important;color:#bfdbfe!important;line-height:1.35}
+.live-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#22c55e;margin-right:7px;box-shadow:0 0 12px #22c55e}
+
+/* Main */
+.main{min-width:0}
+.banner{
+  min-height:300px;position:relative;color:white;overflow:hidden;
+  background:url('assets/nfr_banner_template.jpeg');
+  background-size:cover;
+  background-position:center center;
+  border-bottom:1px solid rgba(0,30,80,.18);box-shadow:inset 0 -40px 80px rgba(0,0,0,.08);
+}
+.banner::after{content:"";position:absolute;inset:0;background:transparent;pointer-events:none}
+.banner-content{position:relative;z-index:1;padding:0;display:flex;justify-content:flex-end;align-items:flex-end;gap:20px;height:300px}
+.banner-left{display:none}
+.ir-emblem{
+  min-width:122px;width:122px;height:122px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 12px 28px rgba(145,0,0,.25);border:5px solid #fff;overflow:hidden
+}
+.ir-emblem img{width:100%;height:100%;object-fit:contain}
+.banner h1{
+  margin:4px 0 4px;color:#06245a;font-size:43px;letter-spacing:.5px;line-height:1.05;text-transform:uppercase;
+  text-shadow:0 2px 0 rgba(255,255,255,.8)
+}
+.banner h2{margin:4px 0 12px;color:#d60000;font-size:30px;text-transform:uppercase}
+.banner-tags{display:flex;gap:12px;flex-wrap:wrap;color:#06245a;font-weight:900;font-size:14px}
+.banner-time{
+position:absolute;
+right:25px;
+top:22px;
+background:#ffffff;
+color:#0f172a;
+padding:14px 22px;
+border-radius:16px;
+font-size:18px;
+font-weight:900;
+box-shadow:0 10px 26px rgba(0,0,0,.25);
+border:3px solid #1d4ed8;
+min-width:330px;
+text-align:center;
+line-height:1.5;
+z-index:999
+}
+
+/* Content */
+.content{padding:16px 24px 24px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:-18px;position:relative;z-index:4}
+.kpi{
+  min-height:116px;border-radius:11px;color:white;padding:18px;display:flex;gap:15px;align-items:center;
+  box-shadow:0 8px 18px rgba(15,23,42,.18)
+}
+.kpi-icon{width:64px;height:64px;border-radius:50%;background:white;color:inherit;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900}
+.kpi small{display:block;text-transform:uppercase;font-weight:900;opacity:.95}.kpi b{display:block;font-size:28px;margin:7px 0 2px}.kpi span{font-size:14px}
+.kpi.blue{background:linear-gradient(135deg,#0977f2,#004cc0)}.kpi.green{background:linear-gradient(135deg,#13b85e,#00843d)}
+.kpi.purple{background:linear-gradient(135deg,#8c4be8,#6124c7)}.kpi.orange{background:linear-gradient(135deg,#ffb321,#ff7600)}
+.kpi.red{background:linear-gradient(135deg,#ff5a5a,#ec1f2e)}
+
+.card{
+  background:white;border-radius:10px;padding:16px;margin-top:14px;box-shadow:0 4px 14px rgba(15,23,42,.10);border:1px solid rgba(203,213,225,.8)
+}
+.filters{display:grid;grid-template-columns:repeat(4,1fr) 1.3fr auto auto;gap:14px;align-items:end}
+label{display:block;font-size:13px;font-weight:900;margin-bottom:7px;color:#0f2451}
+select,input{width:100%;padding:12px;border-radius:6px;border:1px solid #cbd5e1;background:white;font-size:15px}
+button{border:0;border-radius:7px;padding:13px 16px;color:white;font-weight:900;cursor:pointer;white-space:nowrap}
+.btn-blue{background:#063b99}.btn-green{background:#07833e}
+
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+.chart-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px}
+.chart-box{min-height:320px}
+.chart-box canvas{max-height:285px!important}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.section-title h3{margin:0;color:#00307c;text-transform:uppercase;font-size:16px}
+.badge{display:inline-block;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;background:#e0ecff;color:#063b99}
+.badge.green{background:#dcfce7;color:#166534}.badge.orange{background:#ffedd5;color:#9a3412}.badge.red{background:#fee2e2;color:#991b1b}.badge.gray{background:#e2e8f0;color:#334155}
+
+.bar-row{display:grid;grid-template-columns:190px 1fr 58px;gap:10px;align-items:center;margin:12px 0}
+.bar-label{font-weight:800;color:#26364d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-bg{height:12px;background:#e5edf7;border-radius:999px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#0977f2,#22c55e);border-radius:999px}
+.alert{padding:13px;border-radius:12px;margin-bottom:10px;background:#fff7ed;border:1px solid #fed7aa}
+.alert strong{color:#9a3412}.ok{background:#ecfdf5;border-color:#bbf7d0}.ok strong{color:#166534}.danger{background:#fef2f2;border-color:#fecaca}.danger strong{color:#991b1b}.stop{background:#f1f5f9;border-color:#cbd5e1}.stop strong{color:#334155}
+
+.table-card{padding:0;overflow:hidden}
+.table-title{background:#00307c;color:white;padding:11px 16px;font-weight:900;text-transform:uppercase}
+.table-wrap{overflow:auto;max-height:560px}
+table{width:100%;min-width:1180px;border-collapse:collapse}
+th{background:#00307c;color:white;padding:10px;font-size:12px;position:sticky;top:0;z-index:2}
+td{padding:10px;border:1px solid #d7e0ec;background:white;vertical-align:top;font-size:13px}
+tr:nth-child(even) td{background:#f8fbff}
+.work-text{max-width:520px;line-height:1.35}.pill{min-width:68px;display:inline-block;text-align:center;border-radius:999px;padding:5px 8px;background:#e0f2fe;color:#075985;font-weight:900}
+.empty{padding:25px;text-align:center;color:#64748b;background:#f8fafc;border-radius:12px}
+.footer{background:#002e70;color:white;text-align:center;padding:14px;font-size:13px}
+.attribution{font-size:11px;color:#bfdbfe;margin-top:6px}
+
+@media(max-width:1200px){
+  .app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;display:none}.kpis{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.grid,.chart-grid{grid-template-columns:1fr}.banner h1{font-size:32px}.banner h2{font-size:24px}
+}
+@media(max-width:680px){
+  .kpis,.filters{grid-template-columns:1fr}.banner-content{flex-direction:column}.banner-left{flex-direction:column}.ir-emblem{width:94px;height:94px;min-width:94px}.banner h1{font-size:27px}
+}
+
+.banner-right{
+  position:absolute;
+  right:24px;
+  bottom:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:flex-end;
+  gap:10px;
+  z-index:5
+}
+.india-emblem{display:none}
+.emblem-top{display:none}
+.emblem-text{display:none}
+
+
+.refresh-clicked{animation:refreshPulse .65s ease}
+@keyframes refreshPulse{
+  0%{transform:scale(1);filter:brightness(1)}
+  35%{transform:scale(.96);filter:brightness(1.25)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+.loading-spin{display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+
+.kpi{cursor:pointer;transition:.18s}
+.kpi:hover{transform:translateY(-3px);filter:brightness(1.05)}
+.kpi.active-kpi{outline:4px solid rgba(255,255,255,.9);box-shadow:0 0 0 4px rgba(11,99,216,.35),0 12px 28px rgba(15,23,42,.25)}
+.quick-status{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.status-card{border-radius:11px;color:white;padding:16px;box-shadow:0 8px 18px rgba(15,23,42,.14);cursor:pointer;transition:.18s;font-weight:900}
+.status-card:hover{transform:translateY(-3px);filter:brightness(1.05)}
+.status-card b{display:block;font-size:26px;margin-top:6px}
+.status-completed{background:linear-gradient(135deg,#16a34a,#047857)}
+.status-progress{background:linear-gradient(135deg,#f97316,#d97706)}
+.status-overdue{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+.active-status{outline:4px solid rgba(255,255,255,.9);box-shadow:0 0 0 4px rgba(11,99,216,.35),0 12px 28px rgba(15,23,42,.25)}
+.filter-note{margin-top:12px;font-size:13px;color:#334155;background:#f8fafc;border:1px solid #dbe5f0;border-radius:10px;padding:10px}
+@media(max-width:900px){.quick-status{grid-template-columns:1fr}}
+
+
+.chart-filter-note{
+  margin-top:10px;
+  font-size:13px;
+  color:#0f2451;
+  background:#eef6ff;
+  border:1px solid #c7ddff;
+  border-radius:10px;
+  padding:9px 11px;
+  font-weight:800;
+}
+.chart-box canvas{cursor:pointer}
+.clear-chart-btn{
+  margin-left:8px;
+  border:0;
+  background:#ef4444;
+  color:#fff;
+  border-radius:8px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="logo-round"><img src="https://mcf.indianrailways.gov.in/uploads/IR_logo_Red_1024.png" alt="Indian Railways Logo"></div>
+      <div><b>NFR Gati Shakti</b><span>&nbsp;</span></div>
+    </div>
+    <div class="nav-item active" data-target="dashboard"><span class="nav-icon">⌂</span> Dashboard</div>
+    <div class="nav-item" data-target="overview"><span class="nav-icon">▥</span> Overview</div>
+    <div class="nav-item" data-target="works"><span class="nav-icon">▣</span> Works Progress</div>
+    <div class="nav-item" data-target="financial"><span class="nav-icon">₹</span> Financial Progress</div>
+    <div class="nav-item" data-target="tdc"><span class="nav-icon">▦</span> TDC Analysis</div>
+    <div class="nav-item" data-target="stations"><span class="nav-icon">▤</span> Stations</div>
+    <div class="nav-item" data-target="ph"><span class="nav-icon">▧</span> PH Analysis</div>
+    <div class="nav-item" data-action="export"><span class="nav-icon">⇩</span> Export Data</div>
+    <div class="data-source">
+      <h4>LIVE DATA SOURCE</h4>
+      <p><b>Official Google Sheet</b></p>
+      <p><span class="live-dot"></span><b id="sideStatus">Connecting...</b></p>
+      <p>Rows loaded: <b id="sideRows">0</b></p>
+      <p>Last refresh:<br><b id="sideRefresh">-</b></p>
+      <p class="sheet-note">Sheet link is locked. Users cannot change the data source.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="banner" id="dashboard">
+      <div class="banner-content">
+        <div class="banner-left">
+          <div class="ir-emblem"><img src="https://mcf.indianrailways.gov.in/uploads/IR_logo_Red_1024.png" alt="Indian Railways Official Logo"></div>
+          <div>
+            <h1>NORTHEAST FRONTIER RAILWAY</h1>
+            <h2>Gati Shakti NFR Dashboard</h2>
+            <div class="banner-tags"><span>Gati Shakti</span><span>• Better Connectivity</span><span>• Stronger Northeast</span></div>
+          </div>
+        </div>
+        <div class="banner-right">
+          <div class="india-emblem" title="Government of India">
+            <div class="emblem-top">♔</div>
+            <div class="emblem-text">सत्यमेव जयते</div>
+          </div>
+          <div class="banner-time" id="dateTimeBox">&nbsp;</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <section class="kpis" id="overview">
+        <div class="kpi blue" id="kpiTotal" onclick="applyKpiFilter('all', this)"><div class="kpi-icon">▤</div><div><small>Total Works</small><b id="kTotal">0</b><span>All Projects</span></div></div>
+        <div class="kpi green" id="kpiFund" onclick="applyKpiFilter('all', this)"><div class="kpi-icon">₹</div><div><small>Fund Allocated</small><b id="kFund">0</b><span>Total Allocation</span></div></div>
+        <div class="kpi purple" id="kpiPhysical" onclick="applyKpiFilter('physical', this)"><div class="kpi-icon">↗</div><div><small>Physical Progress</small><b id="kPhysical">0%</b><span>Average Overall</span></div></div>
+        <div class="kpi orange" id="kpiFinancial" onclick="applyKpiFilter('financial', this)"><div class="kpi-icon">₹</div><div><small>Financial Progress</small><b id="kFinancial">0%</b><span>Average Overall</span></div></div>
+        <div class="kpi red" id="kpiOverdueCard" onclick="applyKpiFilter('overdue', this)"><div class="kpi-icon">▦</div><div><small>Overdue Works</small><b id="kOverdue">0</b><span>Past TDC</span></div></div>
+      </section>
+
+      <section class="quick-status">
+        <div class="status-card status-completed" id="statusCompleted" onclick="applyKpiFilter('completed', this)">Completed Works <b id="quickCompleted">0</b></div>
+        <div class="status-card status-progress" id="statusProgress" onclick="applyKpiFilter('progress', this)">Work In Progress <b id="quickProgress">0</b></div>
+        <div class="status-card status-overdue" id="statusOverdue" onclick="applyKpiFilter('overdue', this)">Overdue Works <b id="quickOverdue">0</b></div>
+      </section>
+      <div class="filter-note" id="activeFilterNote">Showing: All works</div>
+      <div class="chart-filter-note" id="activeChartFilterNote">Chart Filter: All <button class="clear-chart-btn" onclick="clearChartFilter()">Clear Chart Filter</button></div>
+
+      <section class="card filters">
+        <div><label>Division</label><select id="divisionFilter"></select></div>
+        <div><label>Station</label><select id="stationFilter"></select></div>
+        <div><label>PH</label><select id="phFilter"></select></div>
+        <div><label>TDC Status</label><select id="tdcFilter"></select></div>
+        <div><label>Search</label><input id="searchBox" placeholder="Search work, station, remarks..."></div>
+        <button class="btn-blue" id="refreshBtnMain" onclick="manualRefresh(this)">⟳ Refresh Live Data</button>
+        <button class="btn-green" onclick="exportCSV()">⇩ Export Filtered Data</button>
+      </section>
+
+      <section class="grid">
+        <div class="card" id="works">
+          <div class="section-title"><h3>Physical Progress by Work</h3><span class="badge" id="selectedInfo">All</span></div>
+          <div id="progressBars"></div>
+        </div>
+        <div class="card" id="tdc">
+          <div class="section-title"><h3>TDC Status of Works</h3><span class="badge orange">Live</span></div>
+          <div id="remarksBox"></div>
+        </div>
+      </section>
+
+      <section class="chart-grid">
+        <div class="card chart-box" id="financial">
+          <div class="section-title"><h3>Physical vs Financial Progress</h3><span class="badge">Average by Division</span></div>
+          <canvas id="progressChart"></canvas>
+        </div>
+        <div class="card chart-box">
+          <div class="section-title"><h3>Works by Division</h3><span class="badge green">5 Divisions</span></div>
+          <canvas id="divisionChart"></canvas>
+        </div>
+      </section>
+
+      <section class="chart-grid">
+        
+        <div class="card chart-box" id="ph">
+          <div class="section-title"><h3>PH-wise Works</h3><span class="badge orange">Plan Head</span></div>
+          <canvas id="phChart"></canvas>
+        </div>
+      </section>
+
+      
+<section class="chart-grid">
+  <div class="card chart-box" id="monthTdc">
+    <div class="section-title">
+      <h3>Month-wise Works as per TDC</h3>
+      <span class="badge orange">Clickable</span>
+    </div>
+    <canvas id="monthTdcChart"></canvas>
+  </div>
+</section>
+
+<section class="card table-card">
+        <div class="table-title">Recent Works Progress</div>
+        <div class="table-wrap"><table id="detailsTable"></table></div>
+      </section>
+    </section>
+    <footer class="footer">
+      NORTHEAST FRONTIER RAILWAY &nbsp; | &nbsp; Gati Shakti • Better Connectivity • Stronger Northeast
+      <div class="attribution">Indian Railways official logo source: MCF/Indian Railways. Train photo: Wikimedia Commons, WAP-7 class electric locomotive.</div>
+    </footer>
+  </main>
+</div>
+
+<script src="default_data.js"></script>
+<script src="config.js"></script>
+<script>
+let DATA = [];
+let refreshTimer = null;
+let activeKpiFilter = 'all';
+let activeChartFilter = {type:'all', value:'All'};
+  selectedMonthFilter = null;
+let selectedMonthFilter = null;
+let charts = {};
+const REFRESH_SECONDS = 60;
+const demoData = window.DEFAULT_WORK_DATA || [];
+const OFFICIAL_URL = window.OFFICIAL_SHEET_URL || "https://docs.google.com/spreadsheets/d/1iUPju9pUIa2FqxBKYd_bdPHKBgjrmTyt/edit?usp=sharing&ouid=109615000962498236093&rtpof=true&sd=true";
+const divisionFilter = document.getElementById("divisionFilter");
+const stationFilter = document.getElementById("stationFilter");
+const phFilter = document.getElementById("phFilter");
+const tdcFilter = document.getElementById("tdcFilter");
+const searchBox = document.getElementById("searchBox");
+
+function esc(s){return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+
+function normalizePH(v){
+  return String(v || '')
+    .replace(/PH/gi,'')
+    .replace(/[^0-9A-Za-z]/g,'')
+    .trim()
+    .toUpperCase();
+}
+
+function uniq(a){return [...new Set(a.filter(x => x !== undefined && x !== null && String(x).trim() !== "").map(x=>String(x).trim()))].sort((x,y)=>x.localeCompare(y));}
+function num(v){if(v===""||v===null||v===undefined)return null;let x=Number(String(v).replace("%","").replace(",",""));return isNaN(x)?null:x;}
+function fmtCost(v){let x=num(v);return x===null ? "-" : x.toFixed(2);}
+function fmtPct(v){let x=num(v);return x===null ? "-" : x.toFixed(0)+"%";}
+function short(s,n=55){s=String(s||""); return s.length>n ? s.slice(0,n)+"..." : s;}
+function badgeClass(r){if(r.Remarks==="Work Completed")return"green";if(r.Remarks==="Work Overdue")return"red";if(r.Remarks==="Work Stopped by Division")return"gray";return"orange";}
+function normHeader(h){return String(h||"").toLowerCase().replace(/[\s_\/\-\(\)%₹.]+/g,"").trim();}
+function makeRemarks(tdc){
+  const s = String(tdc || "").toLowerCase();
+  if(s.includes("completed") || s.includes("finalised")) return "Work Completed";
+  if(s.includes("stopped")) return "Work Stopped by Division";
+  const matches = [...s.matchAll(/(\d{1,2})\.(\d{1,2})\.(\d{2,4})/g)];
+  if(matches.length){
+    const today = new Date();
+    const dates = matches.map(m => {let y = Number(m[3]); if(y < 100) y += 2000; return new Date(`${y}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}T00:00:00`);}).filter(d => !isNaN(d));
+    if(dates.length && new Date(Math.max(...dates)) < today) return "Work Overdue";
+  }
+  return "Work In Progress";
+}
+function extractSheetInfo(url){
+  url = String(url || "").trim();
+  const idMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if(!idMatch) return null;
+  const id = idMatch[1];
+  let gid = "0";
+  const gidMatch = url.match(/[?#&]gid=([0-9]+)/);
+  if(gidMatch) gid = gidMatch[1];
+  return {id, gid};
+}
+function getCellValue(cell){
+  if(!cell) return "";
+  if(cell.f !== undefined && cell.f !== null) return String(cell.f).trim();
+  if(cell.v !== undefined && cell.v !== null) return String(cell.v).trim();
+  return "";
+}
+function gvizToRows(response){
+  if(!response || !response.table || !response.table.rows) return [];
+  return response.table.rows.map(row => (row.c || []).map(getCellValue));
+}
+function rowHasHeader(row){
+  const n = row.map(normHeader);
+  const joined = n.join("|");
+  const hasDivision = n.includes("division") || n.includes("cpm") || n.includes("div");
+  const hasWork = joined.includes("nameofwork") || joined.includes("nameofworks") || joined.includes("workdetails") || n.includes("work");
+  const hasStation = joined.includes("station") || joined.includes("stationlxing") || joined.includes("stationlevelcrossing") || joined.includes("lxing");
+  return hasDivision && hasWork && hasStation;
+}
+function mapRowsFromArray(rows){
+  if(!rows.length) return [];
+  let headerIndex = rows.findIndex(rowHasHeader);
+  let headers = [], dataStart = 0;
+  if(headerIndex !== -1){headers = rows[headerIndex].map(normHeader); dataStart = headerIndex + 1;}
+  else{
+    const divCodes = ["APDJ","KIR","LMG","RNY","TSK","MLG","RANGIYA","KATIHAR","TINSUKIA"];
+    const dataIndex = rows.findIndex(row => divCodes.includes(String(row[0] || "").trim().toUpperCase()) && row.length >= 4);
+    if(dataIndex === -1) return [];
+    headers = ["division","station","ph","nameofwork","fundallocated","physicalprogress","financialprogress","tdc","remarks"];
+    dataStart = dataIndex;
+  }
+  function getObjVal(obj,names){for(const name of names){const v=obj[normHeader(name)]; if(v !== undefined) return String(v ?? "").trim();} return "";}
+  return rows.slice(dataStart).map(row => {
+    const obj = {}; headers.forEach((h,i)=> obj[h] = row[i] ?? "");
+    let station = getObjVal(obj, ["Station / L-Xing","Station/L-Xing","Station L-Xing","StationLxing","Station / LXing","Station or L-Xing","Station","L-Xing","Level Crossing"]).trim();
+    if(/^[A-Z]{1,3}-\d+[A-Z]?$/.test(station) || station==="NJ-48" || station==="NN-105"){station = "L-Xing " + station;}
+    const rec = {
+      Division: getObjVal(obj, ["Division","CPM","Div","Division Name"]),
+      Station: station,
+      PH: getObjVal(obj, ["PH","Plan Head","PlanHead"]),
+      NameOfWork: getObjVal(obj, ["Name of work","Name of works","Work","Work Details","Name of Work"]),
+      FundAllocated: getObjVal(obj, ["Fund allocated","Fund Allocated","Fund Allocated Crore","FundAllocated","Cost","Cost Crore","Cost of Works Crore"]),
+      PhysicalProgress: getObjVal(obj, ["Physical progress","Physical Progress","PhysicalProgress","Phy Prog","Phy. Prog.","Phy Progress"]),
+      FinancialProgress: getObjVal(obj, ["Financial progress","Financial Progress","FinancialProgress","Fin Prog","Fin. Prog.","Fin Progress"]),
+      TDC: getObjVal(obj, ["TDC","TDC Remarks","TDC / Remarks","TDC/Remarks","Target Date"]),
+      Remarks: getObjVal(obj, ["Remarks","Remark"])
+    };
+    if(!rec.Remarks) rec.Remarks = makeRemarks(rec.TDC);
+    return rec;
+  }).filter(r => r.Division || r.Station || r.NameOfWork);
+}
+window.handleGvizResponse = function(response){
+  try{
+    const mapped = mapRowsFromArray(gvizToRows(response));
+    if(!mapped.length){sideStatus.textContent = "Default Data"; DATA = demoData; sideRows.textContent = DATA.length; sideRefresh.textContent = "-"; render(); return;}
+    DATA = mapped;
+sideStatus.textContent = "Live Connected ✓";
+if(document.getElementById("sideRows")) sideRows.textContent = DATA.length;
+if(document.getElementById("sideRefresh")) sideRefresh.textContent = new Date().toLocaleTimeString();
+ sideRows.textContent = DATA.length; sideRefresh.textContent = new Date().toLocaleString(); render();
+  }catch(err){console.error(err); sideStatus.textContent = "Default Data"; DATA = demoData; sideRows.textContent = DATA.length; sideRefresh.textContent = "-"; render();}
+};
+
+function loadOfficialSheet(){
+  sideStatus.textContent = "Connecting...";
+  const url = "https://docs.google.com/spreadsheets/d/1fwyK9g8o-mAr9YvkX1O7CBKpf-IbH_9vY2lXeVAIFDg/gviz/tq?tqx=responseHandler:handleGvizResponse&t=" + Date.now();
+
+  const old = document.getElementById("gvizLoader");
+  if(old) old.remove();
+
+  const script = document.createElement("script");
+  script.id = "gvizLoader";
+  script.src = url;
+
+  script.onerror = () => {
+    sideStatus.textContent = "Sheet Error";
+  };
+
+  document.body.appendChild(script);
+}
+
+function manualRefresh(btn){
+  if(btn){
+    const oldText = btn.innerHTML;
+    btn.classList.add("refresh-clicked");
+    btn.innerHTML = '<span class="loading-spin">⟳</span> Refreshing...';
+    setTimeout(()=>{btn.innerHTML = '✓ Refreshed';}, 550);
+    setTimeout(()=>{btn.innerHTML = oldText; btn.classList.remove("refresh-clicked");}, 1350);
+  }
+  loadOfficialSheet();
+}
+function startAutoRefresh(){if(refreshTimer) clearInterval(refreshTimer); refreshTimer = setInterval(loadOfficialSheet, REFRESH_SECONDS * 1000);}
+function fillSelect(select, values, label="All"){
+  const current = select.value || "All";
+  select.innerHTML = [`<option value="All">${label}</option>`].concat(values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`)).join("");
+  if([...select.options].some(o=>o.value===current)) select.value = current;
+}
+function getFiltered(){
+  const div = divisionFilter.value, st = stationFilter.value, ph = phFilter.value, tdc = tdcFilter.value, q = searchBox.value.toLowerCase();
+  let rows = DATA.filter(r => 
+    (div==="All" || r.Division===div) &&
+    (st==="All" || r.Station===st) &&
+    (ph==="All" || normalizePH(r.PH)===normalizePH(ph)) &&
+    (tdc==="All" || r.TDC===tdc) &&
+    Object.values(r).join(" ").toLowerCase().includes(q)
+  );
+
+  if(activeChartFilter.type === "division"){
+    rows = rows.filter(r => r.Division === activeChartFilter.value);
+  } else if(activeChartFilter.type === "station"){
+    rows = rows.filter(r => r.Station === activeChartFilter.value);
+  } else if(activeChartFilter.type === "ph"){
+    rows = rows.filter(r => normalizePH(r.PH) === normalizePH(activeChartFilter.value));
+  } else if(activeChartFilter.type === "remarks"){
+    rows = rows.filter(r => r.Remarks === activeChartFilter.value);
+  }
+
+  if(activeKpiFilter === "completed"){
+    rows = rows.filter(r => r.Remarks === "Work Completed");
+  } else if(activeKpiFilter === "overdue"){
+    rows = rows.filter(r => r.Remarks === "Work Overdue");
+  } else if(activeKpiFilter === "progress"){
+    rows = rows.filter(r => r.Remarks === "Work In Progress");
+  } else if(activeKpiFilter === "physical"){
+    rows = rows.slice().sort((a,b)=>(num(b.PhysicalProgress)||0)-(num(a.PhysicalProgress)||0));
+  } else if(activeKpiFilter === "financial"){
+    rows = rows.slice().sort((a,b)=>(num(b.FinancialProgress)||0)-(num(a.FinancialProgress)||0));
+  }
+
+  
+  if(selectedMonthFilter){
+    rows = rows.filter(r=>{
+      const d = parseTdcDate(r.TDC);
+      if(!d) return false;
+      const key = d.toLocaleDateString('en-US',{month:'long'});
+      return key === selectedMonthFilter;
+    });
+  }
+
+  return rows;
+}
+function refreshFilterOptions(){
+  const cd=divisionFilter.value||"All", cs=stationFilter.value||"All", cp=phFilter.value||"All", ct=tdcFilter.value||"All";
+  fillSelect(divisionFilter, uniq(DATA.map(r=>r.Division)), "All Divisions"); if([...divisionFilter.options].some(o=>o.value===cd)) divisionFilter.value=cd;
+  const div=divisionFilter.value||"All";
+  fillSelect(stationFilter, uniq(DATA.filter(r=>div==="All"||r.Division===div).map(r=>r.Station)), "All Stations"); if([...stationFilter.options].some(o=>o.value===cs)) stationFilter.value=cs;
+  const st=stationFilter.value||"All";
+  fillSelect(phFilter, uniq(DATA.filter(r=>(div==="All"||r.Division===div)&&(st==="All"||r.Station===st)).map(r=>String(r.PH||'').trim())), "All PH"); if([...phFilter.options].some(o=>o.value===cp)) phFilter.value=cp;
+  const ph=phFilter.value||"All";
+  fillSelect(tdcFilter, uniq(DATA.filter(r=>(div==="All"||r.Division===div)&&(st==="All"||r.Station===st)&&(ph==="All"||normalizePH(r.PH)===normalizePH(ph))).map(r=>r.TDC)), "All TDC"); if([...tdcFilter.options].some(o=>o.value===ct)) tdcFilter.value=ct;
+}
+function groupCount(rows, key){const obj={}; rows.forEach(r=>{const k=r[key]||"Unknown"; obj[k]=(obj[k]||0)+1;}); return obj;}
+function avgBy(rows, group, field){
+  const obj={};
+  rows.forEach(r=>{const g=r[group]||"Unknown"; const v=num(r[field]); if(v!==null){if(!obj[g])obj[g]=[]; obj[g].push(v);}});
+  return Object.fromEntries(Object.entries(obj).map(([k,v])=>[k, v.reduce((a,b)=>a+b,0)/v.length]));
+}
+function destroyChart(id){if(charts[id]){charts[id].destroy(); charts[id]=null;}}
+function renderCharts(rows){
+  if(typeof Chart === "undefined") return;
+  const colors=["#0b63d8","#16a34a","#ff8a00","#7c3aed","#ef3333","#64748b","#0891b2","#f59e0b"];
+  const divisions=uniq(rows.map(r=>r.Division));
+  const phys=avgBy(rows,"Division","PhysicalProgress"), fin=avgBy(rows,"Division","FinancialProgress");
+  destroyChart("progressChart");
+  charts.progressChart=new Chart(document.getElementById("progressChart"),{type:"bar",data:{labels:divisions,datasets:[{label:"Physical %",data:divisions.map(d=>phys[d]||0),backgroundColor:"#0b63d8"},{label:"Financial %",data:divisions.map(d=>fin[d]||0),backgroundColor:"#16a34a"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,max:100}}}});
+  const divCounts=groupCount(rows,"Division");
+  destroyChart("divisionChart");
+  charts.divisionChart=new Chart(document.getElementById("divisionChart"),{type:"doughnut",data:{labels:Object.keys(divCounts),datasets:[{data:Object.values(divCounts),backgroundColor:colors}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}});
+  const stationCounts=Object.entries(groupCount(rows,"Station")).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart("stationChart");
+  charts.stationChart=new Chart(document.getElementById("stationChart"),{type:"bar",data:{labels:stationCounts.map(x=>x[0]),datasets:[{label:"Works",data:stationCounts.map(x=>x[1]),backgroundColor:"#7c3aed"}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const phCounts={};
+  rows.forEach(r=>{
+    const key = String(r.PH || '').trim();
+    if(!key) return;
+    phCounts[key] = (phCounts[key] || 0) + 1;
+  });
+  destroyChart("phChart");
+  charts.phChart=new Chart(document.getElementById("phChart"),{type:"bar",data:{labels:Object.keys(phCounts),datasets:[{label:"Works",data:Object.values(phCounts),backgroundColor:"#ff8a00"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+}
+function applyChartFilter(type, value){
+  activeChartFilter = {type, value};
+  const labelMap = {division:"Division", station:"Station", ph:"PH", remarks:"Remarks"};
+  if(document.getElementById("activeChartFilterNote")){
+    activeChartFilterNote.innerHTML = `Chart Filter: ${labelMap[type] || type} = <b>${esc(value)}</b> <button class="clear-chart-btn" onclick="clearChartFilter()">Clear Chart Filter</button>`;
+  }
+
+  if(type === "division" && [...divisionFilter.options].some(o=>o.value===value)){
+    divisionFilter.value = value;
+  }
+  if(type === "station" && [...stationFilter.options].some(o=>o.value===value)){
+    stationFilter.value = value;
+  }
+  if(type === "ph" && [...phFilter.options].some(o=>o.value===String(value))){
+    phFilter.value = String(value);
+  }
+
+  document.querySelector(".table-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+  render();
+}
+
+function clearChartFilter(){
+  activeChartFilter = {type:'all', value:'All'};
+  selectedMonthFilter = null;
+  if(document.getElementById("activeChartFilterNote")){
+    activeChartFilterNote.innerHTML = 'Chart Filter: All <button class="clear-chart-btn" onclick="clearChartFilter()">Clear Chart Filter</button>';
+  }
+  render();
+}
+
+function applyKpiFilter(type, element){
+  activeKpiFilter = type;
+
+  document.querySelectorAll(".kpi,.status-card").forEach(x=>{
+    x.classList.remove("active-kpi");
+    x.classList.remove("active-status");
+  });
+
+  if(element){
+    if(element.classList.contains("status-card")) element.classList.add("active-status");
+    else element.classList.add("active-kpi");
+  }
+
+  const labelMap = {
+    all: "All works",
+    completed: "Work Completed only",
+    overdue: "Work Overdue only",
+    progress: "Work In Progress only",
+    physical: "All works sorted by Physical Progress",
+    financial: "All works sorted by Financial Progress"
+  };
+  if(document.getElementById("activeFilterNote")){
+    activeFilterNote.textContent = "Showing: " + (labelMap[type] || "All works");
+  }
+
+  document.querySelector(".table-card")?.scrollIntoView({behavior:"smooth", block:"start"});
+  render();
+}
+
+function renderKpis(rows){
+  const fund=rows.reduce((s,r)=>s+(num(r.FundAllocated)||0),0);
+  const phys=rows.map(r=>num(r.PhysicalProgress)).filter(v=>v!==null);
+  const fin=rows.map(r=>num(r.FinancialProgress)).filter(v=>v!==null);
+  kTotal.textContent=rows.length; kFund.textContent=fund.toFixed(2);
+  kPhysical.textContent=(phys.length?phys.reduce((a,b)=>a+b,0)/phys.length:0).toFixed(1)+"%";
+  kFinancial.textContent=(fin.length?fin.reduce((a,b)=>a+b,0)/fin.length:0).toFixed(1)+"%";
+  kOverdue.textContent=rows.filter(r=>r.Remarks==="Work Overdue").length;
+
+  const baseRows = DATA.filter(r =>
+    (divisionFilter.value==="All" || r.Division===divisionFilter.value) &&
+    (stationFilter.value==="All" || r.Station===stationFilter.value) &&
+    (phFilter.value==="All" || String(r.PH)===String(phFilter.value)) &&
+    (tdcFilter.value==="All" || r.TDC===tdcFilter.value) &&
+    Object.values(r).join(" ").toLowerCase().includes(searchBox.value.toLowerCase())
+  );
+  if(document.getElementById("quickCompleted")) quickCompleted.textContent = baseRows.filter(r=>r.Remarks==="Work Completed").length;
+  if(document.getElementById("quickProgress")) quickProgress.textContent = baseRows.filter(r=>r.Remarks==="Work In Progress").length;
+  if(document.getElementById("quickOverdue")) quickOverdue.textContent = baseRows.filter(r=>r.Remarks==="Work Overdue").length;
+}
+function renderBars(rows){
+  if(!rows.length){progressBars.innerHTML='<div class="empty">No work found for selected filters.</div>';return;}
+  progressBars.innerHTML=rows.slice(0,12).map(r=>{const p=num(r.PhysicalProgress)||0;return `<div class="bar-row" title="${esc(r.NameOfWork)}"><div class="bar-label">${esc(short(r.NameOfWork,43))}</div><div class="bar-bg"><div class="bar-fill" style="width:${Math.min(p,100)}%"></div></div><div><b>${fmtPct(p)}</b></div></div>`}).join("")+(rows.length>12?'<div class="empty">Showing first 12 works. Full list below.</div>':'');
+}
+function renderRemarks(rows){
+  const order=["Work Overdue","Work In Progress","Work Completed","Work Stopped by Division"];
+  remarksBox.innerHTML=order.map(rem=>{const count=rows.filter(r=>r.Remarks===rem).length; const cls=rem==="Work Completed"?"ok":rem==="Work Overdue"?"danger":rem==="Work Stopped by Division"?"stop":"";return `<div class="alert ${cls}"><strong>${rem}</strong><br>${count} work(s)</div>`}).join("");
+}
+function renderTable(rows){
+  detailsTable.innerHTML=`<thead><tr><th>S.No.</th><th>Division</th><th>Station</th><th>PH</th><th>Name of Work</th><th>Fund Allocated (Cr)</th><th>Physical Progress (%)</th><th>Financial Progress (%)</th><th>TDC</th><th>Remarks</th><th>Status</th></tr></thead><tbody>`+
+  rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.Division)}</td><td>${esc(r.Station)}</td><td>${esc(r.PH)}</td><td><div class="work-text">${esc(r.NameOfWork)}</div></td><td>${fmtCost(r.FundAllocated)}</td><td><span class="pill">${fmtPct(r.PhysicalProgress)}</span></td><td><span class="pill">${fmtPct(r.FinancialProgress)}</span></td><td>${esc(r.TDC||"-")}</td><td>${esc(r.Remarks)}</td><td><span class="badge ${badgeClass(r)}">${esc(r.Remarks==="Work Overdue"?"Overdue":r.Remarks==="Work Completed"?"Completed":"In Progress")}</span></td></tr>`).join("")+`</tbody>`;
+}
+function render(){
+  refreshFilterOptions();
+  const rows=getFiltered();
+  selectedInfo.textContent=`${divisionFilter.value} / ${stationFilter.value} / PH ${phFilter.value} / TDC ${tdcFilter.value}`;
+  renderKpis(rows); renderBars(rows); renderRemarks(rows); renderTable(rows); renderCharts(rows);
+  const nowTime = new Date();
+dateTimeBox.innerHTML = '📅 ' + nowTime.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) + '<br>⏰ ' + nowTime.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+function exportCSV(){
+  const rows=getFiltered(), headers=["Division","Station","PH","Name of work","Fund allocated","Physical progress","Financial progress","TDC","Remarks"], keys=["Division","Station","PH","NameOfWork","FundAllocated","PhysicalProgress","FinancialProgress","TDC","Remarks"];
+  const csv=[headers.join(",")].concat(rows.map(r=>keys.map(k=>`"${String(r[k]??"").replaceAll('"','""')}"`).join(","))).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="filtered_work_progress.csv"; a.click(); URL.revokeObjectURL(url);
+}
+function setupNav(){
+  document.querySelectorAll(".nav-item").forEach(item=>{
+    item.addEventListener("click",()=>{
+      const action=item.dataset.action; if(action==="export"){exportCSV(); return;}
+      const target=item.dataset.target; if(target){document.getElementById(target)?.scrollIntoView({behavior:"smooth",block:"start"});}
+      document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active")); item.classList.add("active");
+    });
+  });
+}
+[divisionFilter,stationFilter,phFilter,tdcFilter].forEach(el=>el.addEventListener("change", render)); searchBox.addEventListener("input", render);
+setupNav(); loadOfficialSheet(); startAutoRefresh();
+</script>
+</body>
+</html>
